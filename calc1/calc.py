@@ -56,9 +56,7 @@ class Interpreter(object):
 		if currentChar.isdigit():
 			number = self.getNumber(text)
 			token = Token(INTEGER, number)
-			#self.pos += 1
 			return token
-		
 
 		if currentChar in ('+', '-'):
 			token = Token(OP, currentChar)
