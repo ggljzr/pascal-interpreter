@@ -2,128 +2,131 @@ import string
 
 INTEGER, OP, EOF, WHITESPACE = 'INTEGER', 'OP', 'EOF', 'WHITESPACE'
 
+
 class Token(object):
-	def __init__(self, type, value):
-		self.type = type
-		self.value = value
-	
-	def __str__(self):
-		return 'Token(type:{type}, value:{value})'.format(type = self.type,
-				value = self.value)
-	
-	def __repr__(self):
-		return self.__str__()
+
+    def __init__(self, type, value):
+        self.type = type
+        self.value = value
+
+    def __str__(self):
+        return 'Token(type:{type}, value:{value})'.format(type=self.type,
+                                                          value=self.value)
+
+    def __repr__(self):
+        return self.__str__()
+
 
 class Interpreter(object):
-	def __init__(self, text):
-		self.text = text #client string input
-		self.pos = 0
-		self.currentToken = None
 
-	def error(self):
-		raise Exception('Error parsing input')
+    def __init__(self, text):
+        self.text = text  # client string input
+        self.pos = 0
+        self.currentToken = None
 
-	def stripWhitespace(self):
-		text = self.text
-		for ws in string.whitespace:
-			text = text.replace(ws, '')
+    def error(self):
+        raise Exception('Error parsing input')
 
-		return text
+    def stripWhitespace(self):
+        text = self.text
+        for ws in string.whitespace:
+            text = text.replace(ws, '')
 
-	def getNumber(self, text):
-		number = ''
-		start = self.pos
+        return text
 
-		for char in text[start:]:
-			if char.isdigit():
-				number = number + char
-				self.pos += 1
-			else:
-				break
+    def getNumber(self, text):
+        number = ''
+        start = self.pos
 
-		return int(number)
+        for char in text[start:]:
+            if char.isdigit():
+                number = number + char
+                self.pos += 1
+            else:
+                break
 
-	def getNextToken(self):
+        return int(number)
 
-		#text = self.stripWhitespace()
-		text = self.text
+    def getNextToken(self):
 
-		if self.pos > len(text) - 1:
-			return Token(EOF, None)
+        #text = self.stripWhitespace()
+        text = self.text
 
-		currentChar = text[self.pos]
+        if self.pos > len(text) - 1:
+            return Token(EOF, None)
 
-		if currentChar.isdigit():
-			number = self.getNumber(text)
-			token = Token(INTEGER, number)
-			return token
+        currentChar = text[self.pos]
 
-		if currentChar in ('+', '-'):
-			token = Token(OP, currentChar)
-			self.pos += 1
-			return token
+        if currentChar.isdigit():
+            number = self.getNumber(text)
+            token = Token(INTEGER, number)
+            return token
 
-		if currentChar in string.whitespace:
-			token = Token(WHITESPACE, currentChar)
-			self.pos += 1
-			return token
+        if currentChar in ('+', '-'):
+            token = Token(OP, currentChar)
+            self.pos += 1
+            return token
 
+        if currentChar in string.whitespace:
+            token = Token(WHITESPACE, currentChar)
+            self.pos += 1
+            return token
 
-		self.error()
+        self.error()
 
-	#for checking if next token is the one we expect
-	#and expression is valid
-	def eat(self, tokenType):
-		if self.currentToken.type == tokenType:
-			self.currentToken = self.getNextToken()
-		else:
-			self.error()
-	
-	def eatWhitespace(self):
-		while self.currentToken.type == WHITESPACE:
-			self.eat(WHITESPACE)
-			continue
+    # for checking if next token is the one we expect
+    # and expression is valid
+    def eat(self, tokenType):
+        if self.currentToken.type == tokenType:
+            self.currentToken = self.getNextToken()
+        else:
+            self.error()
 
-	def expr(self):
-		self.currentToken = self.getNextToken()
+    def eatWhitespace(self):
+        while self.currentToken.type == WHITESPACE:
+            self.eat(WHITESPACE)
+            continue
 
-		self.eatWhitespace()
+    def expr(self):
+        self.currentToken = self.getNextToken()
 
-		left = self.currentToken
-		self.eat(INTEGER)
+        self.eatWhitespace()
 
-		self.eatWhitespace()
+        left = self.currentToken
+        self.eat(INTEGER)
 
-		op = self.currentToken
-		self.eat(OP)
+        self.eatWhitespace()
 
-		self.eatWhitespace()
+        op = self.currentToken
+        self.eat(OP)
 
-		right = self.currentToken
-		self.eat(INTEGER)
+        self.eatWhitespace()
 
-		if op.value == '+':
-			result = left.value + right.value
-		elif op.value == '-':
-			result = left.value - right.value
+        right = self.currentToken
+        self.eat(INTEGER)
 
-		return result
+        if op.value == '+':
+            result = left.value + right.value
+        elif op.value == '-':
+            result = left.value - right.value
+
+        return result
 
 
 def main():
-	while True:
-		try:
-			text = raw_input('calc> ')
-		except EOFError:
-			break
+    while True:
+        try:
+            text = raw_input('calc> ')
+        except EOFError:
+            break
 
-		if not text:
-			continue
-	
-		interpreter = Interpreter(text)
-		result = interpreter.expr()
-		print(result)
+        if not text:
+            continue
+
+        interpreter = Interpreter(text)
+        result = interpreter.expr()
+        print(result)
 
 
 if __name__ == '__main__':
-	main()
+    main()
